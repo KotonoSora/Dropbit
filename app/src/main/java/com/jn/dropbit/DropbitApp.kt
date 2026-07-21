@@ -16,14 +16,21 @@ object GamePreferences {
     val HIGH_SCORE_ENDLESS = intPreferencesKey("high_score_endless")
     val SELECTED_SKIN = stringPreferencesKey("selected_skin")
 
-    fun getHighScore(context: Context, key: androidx.datastore.preferences.core.Preferences.Key<Int>): Flow<Int> = 
+    fun getHighScore(
+        context: Context,
+        key: androidx.datastore.preferences.core.Preferences.Key<Int>
+    ): Flow<Int> =
         context.dataStore.data.map { it[key] ?: 0 }
 
-    suspend fun saveHighScore(context: Context, key: androidx.datastore.preferences.core.Preferences.Key<Int>, score: Int) {
+    suspend fun saveHighScore(
+        context: Context,
+        key: androidx.datastore.preferences.core.Preferences.Key<Int>,
+        score: Int
+    ) {
         context.dataStore.edit { it[key] = score }
     }
 
-    fun getSelectedSkin(context: Context): Flow<String> = 
+    fun getSelectedSkin(context: Context): Flow<String> =
         context.dataStore.data.map { it[SELECTED_SKIN] ?: "Blue" }
 
     suspend fun saveSelectedSkin(context: Context, skin: String) {
