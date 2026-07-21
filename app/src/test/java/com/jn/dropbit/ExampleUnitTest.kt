@@ -1,4 +1,4 @@
-package com.kotonosora.dropbit
+package com.jn.dropbit
 
 import org.junit.Test
 

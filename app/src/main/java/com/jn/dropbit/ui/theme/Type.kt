@@ -1,4 +1,4 @@
-package com.kotonosora.dropbit.ui.theme
+package com.jn.dropbit.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

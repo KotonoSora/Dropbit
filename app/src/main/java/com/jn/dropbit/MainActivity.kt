@@ -1,10 +1,10 @@
-package com.kotonosora.dropbit
+package com.jn.dropbit
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.kotonosora.dropbit.ui.theme.DropbitTheme
+import com.jn.dropbit.ui.theme.DropbitTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

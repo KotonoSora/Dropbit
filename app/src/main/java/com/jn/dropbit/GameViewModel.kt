@@ -1,10 +1,9 @@
-package com.kotonosora.dropbit
+package com.jn.dropbit
 
 import android.app.Application
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
@@ -76,7 +75,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         // Collision detection
         val playerRect = Rect(Offset(currentState.playerX, 1800f), playerSize)
         val hasCollision = newObstacles.any { obstacle ->
-            val obstacleRect = Rect(obstacle.position.x - obstacleRadius, obstacle.position.y - obstacleRadius, obstacle.position.x + obstacleRadius, obstacle.position.y + obstacleRadius)
+            val obstacleRect = Rect(
+                obstacle.position.x - obstacleRadius,
+                obstacle.position.y - obstacleRadius,
+                obstacle.position.x + obstacleRadius,
+                obstacle.position.y + obstacleRadius
+            )
             playerRect.overlaps(obstacleRect)
         }
 
@@ -91,8 +95,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             newObstacles
         }
 
-        val gameIsOver = (hasCollision && currentState.gameMode != GameMode.ENDLESS) || isGameOverByTime
-        
+        val gameIsOver =
+            (hasCollision && currentState.gameMode != GameMode.ENDLESS) || isGameOverByTime
+
         _gameState.value = currentState.copy(
             obstacles = finalObstacles,
             score = currentState.score + 1,
@@ -109,7 +114,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val mode = _gameState.value.gameMode
             val score = _gameState.value.score
-            val key = when(mode) {
+            val key = when (mode) {
                 GameMode.CLASSIC -> GamePreferences.HIGH_SCORE_CLASSIC
                 GameMode.TIME_ATTACK -> GamePreferences.HIGH_SCORE_TIME_ATTACK
                 GameMode.ENDLESS -> GamePreferences.HIGH_SCORE_ENDLESS
