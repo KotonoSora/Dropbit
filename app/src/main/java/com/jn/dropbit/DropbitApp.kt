@@ -1,4 +1,4 @@
-package com.kotonosora.dropbit
+package com.jn.dropbit
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit

@@ -1,4 +1,4 @@
-package com.kotonosora.dropbit
+package com.jn.dropbit
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.*
-import com.kotonosora.dropbit.ui.theme.*
+import com.jn.dropbit.ui.theme.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 

@@ -1,4 +1,4 @@
-package com.kotonosora.dropbit
+package com.jn.dropbit
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kotonosora.dropbit.ui.theme.*
+import com.jn.dropbit.ui.theme.*
 import kotlinx.coroutines.flow.first
 
 @Composable

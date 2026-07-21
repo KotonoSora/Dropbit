@@ -1,21 +1,18 @@
+import com.android.build.api.dsl.ApplicationExtension
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.devtools.ksp)
 }
 
-android {
-    namespace = "com.kotonosora.dropbit"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+configure<ApplicationExtension> {
+    namespace = "com.jn.dropbit"
+    compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.kotonosora.dropbit"
-        minSdk = 24
-        targetSdk = 36
+        applicationId = "com.jn.dropbit"
+        minSdk = 30
         versionCode = 1
         versionName = "1.0"
 
