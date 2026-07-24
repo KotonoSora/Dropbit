@@ -45,7 +45,7 @@ class ProcessGameOverUseCase(
         coinsEarned: Int
     ): Boolean {
         val isHighScore = saveHighScoreUseCase(mode, score)
-        
+
         if (coinsEarned > 0) {
             val currentCoins = getCoinsUseCase().first()
             saveCoinsUseCase(currentCoins + coinsEarned)
