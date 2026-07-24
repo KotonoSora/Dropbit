@@ -34,8 +34,6 @@ class ViewModelModule(
                         domainComponent.buySkinUseCase,
                         domainComponent.getPlayerSkinUseCase,
                         domainComponent.savePlayerSkinUseCase,
-                        domainComponent.getLastAdTimeUseCase,
-                        domainComponent.saveLastAdTimeUseCase,
                         dataComponent.billingManager,
                         dataComponent.soundManager
                     ) as T
@@ -45,6 +43,7 @@ class ViewModelModule(
                     GameViewModel(
                         domainComponent.processGameOverUseCase,
                         domainComponent.getPlayerSkinUseCase,
+                        domainComponent.getCoinsUseCase,
                         domainComponent.gameEngine,
                         dataComponent.soundManager
                     ) as T

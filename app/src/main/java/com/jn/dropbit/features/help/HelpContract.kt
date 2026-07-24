@@ -1,7 +1,9 @@
 package com.jn.dropbit.features.help
 
+import com.jn.dropbit.domain.model.INITIAL_COINS
+
 data class HelpState(
-    val coins: Int = 0,
+    val coins: Int = INITIAL_COINS,
     val instructions: List<String> = listOf(
         "1. Drag your square left and right to avoid falling circles.",
         "2. Surviving longer increases your score.",

@@ -3,8 +3,10 @@ package com.jn.dropbit.domain.engine
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import com.jn.dropbit.domain.model.DAILY_CHALLENGE_REWARD
 import com.jn.dropbit.domain.model.GameMode
 import com.jn.dropbit.domain.model.GameState
+import com.jn.dropbit.domain.model.NORMAL_GAME_REWARD
 import com.jn.dropbit.domain.model.Obstacle
 import kotlin.random.Random
 
@@ -15,13 +17,13 @@ class GameEngine {
     fun updateGame(currentState: GameState, deltaTime: Long, sessionDuration: Long): GameState {
         if (currentState.isGameOver) return currentState
 
-        // Update Time Attack mode
-        val newTimeLeft = if (currentState.gameMode == GameMode.TIME_ATTACK) {
+        // Update Time Attack mode or Challenge
+        val isTimerMode = currentState.gameMode == GameMode.TIME_ATTACK || currentState.isChallenge
+        val newTimeLeft = if (isTimerMode) {
             (currentState.timeLeft - deltaTime).coerceAtLeast(0L)
         } else currentState.timeLeft
 
-        val isGameOverByTime =
-            (currentState.gameMode == GameMode.TIME_ATTACK) && (newTimeLeft <= 0L)
+        val isGameOverByTime = isTimerMode && (newTimeLeft <= 0L)
 
         // Difficulty scaling: increases speed and spawn rate over time
         val difficultyFactor = 1.0f + (sessionDuration / 10000f)
@@ -62,11 +64,20 @@ class GameEngine {
         val gameIsOver =
             (hasCollision && currentState.gameMode != GameMode.ENDLESS) || isGameOverByTime
 
+        val coinsEarned = if (gameIsOver) {
+            when {
+                currentState.isChallenge && isGameOverByTime -> DAILY_CHALLENGE_REWARD
+                currentState.isChallenge -> 0
+                else -> NORMAL_GAME_REWARD
+            }
+        } else 0
+
         return currentState.copy(
             obstacles = finalObstacles,
             score = currentState.score + 1,
             timeLeft = newTimeLeft,
             isGameOver = gameIsOver,
+            coinsEarned = coinsEarned,
             obstacleCounter = nextCounter
         )
     }

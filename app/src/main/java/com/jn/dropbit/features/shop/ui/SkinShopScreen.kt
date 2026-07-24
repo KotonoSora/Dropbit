@@ -15,10 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,11 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jn.dropbit.domain.model.INITIAL_COINS
 import com.jn.dropbit.features.common.ui.DropbitScreen
 import com.jn.dropbit.features.common.ui.HeaderBar
 import com.jn.dropbit.features.common.ui.NeonButton
 import com.jn.dropbit.features.common.ui.NeonCard
-import com.jn.dropbit.features.common.ui.NeonText
 import com.jn.dropbit.features.shop.ShopIntent
 import com.jn.dropbit.features.shop.ShopState
 import com.jn.dropbit.features.shop.ShopViewModel
@@ -73,19 +69,17 @@ fun CharacterSelectionScreenContent(
     )
 
     DropbitScreen {
+        HeaderBar(
+            coins = state.coins,
+            title = "SKIN SHOP",
+            onBackClick = onBack
+        )
         Column(
             Modifier
                 .fillMaxSize()
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HeaderBar(coins = state.coins)
-            NeonText(
-                "SKIN SHOP",
-                style = MaterialTheme.typography.headlineMedium,
-                color = NeonBlue,
-                fontWeight = FontWeight.Black
-            )
             Spacer(Modifier.height(32.dp))
 
             LazyColumn(
@@ -106,14 +100,6 @@ fun CharacterSelectionScreenContent(
                         }
                     )
                 }
-            }
-
-            IconButton(onClick = onBack, modifier = Modifier.padding(top = 16.dp)) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = NeonBlue
-                )
             }
         }
     }
@@ -191,7 +177,7 @@ fun SkinItem(
 fun CharacterSelectionScreenPreview() {
     DropbitTheme {
         CharacterSelectionScreenContent(
-            state = ShopState(coins = 1000, unlockedSkins = listOf("Blue", "Red")),
+            state = ShopState(coins = INITIAL_COINS, unlockedSkins = listOf("Blue", "Red")),
             onSelectSkin = {},
             onBuySkin = { _, _ -> }
         ) {

@@ -32,7 +32,7 @@ class ProcessGameOverUseCaseTest {
     }
 
     @Test
-    fun `when game over, should save high score and coins`() = runTest {
+    fun `when game over in normal mode, should receive 30 coins`() = runTest {
         // Given
         val mode = GameMode.CLASSIC
         val score = 100
@@ -42,16 +42,29 @@ class ProcessGameOverUseCaseTest {
         coEvery { saveHistoryUseCase(any()) } returns Unit
 
         // When
-        val (isHighScore, coinsEarned) = useCase(mode, score)
+        val (isHighScore, coinsEarned) = useCase(mode, score, isChallenge = false, isWin = false)
 
         // Then
         assertEquals(true, isHighScore)
-        assertEquals(10, coinsEarned)
-        coVerify { saveCoinsUseCase(60) }
-        coVerify { 
-            saveHistoryUseCase(match { 
-                it.score == 100 && it.coinsEarned == 10 && it.mode == GameMode.CLASSIC 
-            }) 
-        }
+        assertEquals(30, coinsEarned)
+        coVerify { saveCoinsUseCase(80) }
+    }
+
+    @Test
+    fun `when daily challenge won, should receive 50 coins`() = runTest {
+        // Given
+        val mode = GameMode.ENDLESS
+        val score = 500
+        coEvery { saveHighScoreUseCase(mode, score) } returns false
+        every { getCoinsUseCase() } returns flowOf(100)
+        coEvery { saveCoinsUseCase(any()) } returns Unit
+        coEvery { saveHistoryUseCase(any()) } returns Unit
+
+        // When
+        val (isHighScore, coinsEarned) = useCase(mode, score, isChallenge = true, isWin = true)
+
+        // Then
+        assertEquals(50, coinsEarned)
+        coVerify { saveCoinsUseCase(150) }
     }
 }

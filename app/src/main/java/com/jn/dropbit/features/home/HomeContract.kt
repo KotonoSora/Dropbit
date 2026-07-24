@@ -1,7 +1,9 @@
 package com.jn.dropbit.features.home
 
+import com.jn.dropbit.domain.model.INITIAL_COINS
+
 data class HomeState(
-    val coins: Int = 0,
+    val coins: Int = INITIAL_COINS,
     val selectedSkin: String = "Blue",
 )
 

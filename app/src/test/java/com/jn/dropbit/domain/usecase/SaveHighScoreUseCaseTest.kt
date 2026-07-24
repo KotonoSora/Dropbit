@@ -25,8 +25,6 @@ class SaveHighScoreUseCaseTest {
         override suspend fun saveSelectedSkin(skin: String) {}
         override fun getCoins(): Flow<Int> = flow { emit(0) }
         override suspend fun saveCoins(coins: Int) {}
-        override fun getLastAdTime(): Flow<Long> = flow { emit(0L) }
-        override suspend fun saveLastAdTime(time: Long) {}
         override fun getHistory(): Flow<List<com.jn.dropbit.domain.model.HistoryRecord>> = flow { emit(emptyList()) }
         override suspend fun saveHistory(record: com.jn.dropbit.domain.model.HistoryRecord) {}
         override fun getSettings(): Flow<com.jn.dropbit.domain.model.SettingsState> = flow { emit(com.jn.dropbit.domain.model.SettingsState()) }

@@ -41,11 +41,11 @@ class ProcessGameOverUseCase(
 ) {
     suspend operator fun invoke(
         mode: GameMode,
-        score: Int
-    ): Pair<Boolean, Int> {
+        score: Int,
+        coinsEarned: Int
+    ): Boolean {
         val isHighScore = saveHighScoreUseCase(mode, score)
-        val coinsEarned = score / 10
-
+        
         if (coinsEarned > 0) {
             val currentCoins = getCoinsUseCase().first()
             saveCoinsUseCase(currentCoins + coinsEarned)
@@ -60,6 +60,6 @@ class ProcessGameOverUseCase(
             )
         )
 
-        return isHighScore to coinsEarned
+        return isHighScore
     }
 }

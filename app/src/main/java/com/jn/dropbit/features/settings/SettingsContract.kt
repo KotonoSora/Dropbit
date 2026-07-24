@@ -1,9 +1,10 @@
 package com.jn.dropbit.features.settings
 
+import com.jn.dropbit.domain.model.INITIAL_COINS
 import com.jn.dropbit.domain.model.SettingsState
 
 data class SettingsUIState(
-    val coins: Int = 0,
+    val coins: Int = INITIAL_COINS,
     val settings: SettingsState = SettingsState(),
 )
 

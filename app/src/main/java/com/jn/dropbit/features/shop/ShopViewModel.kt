@@ -5,11 +5,9 @@ import com.jn.dropbit.R
 import com.jn.dropbit.billing.BillingManager
 import com.jn.dropbit.domain.usecase.BuySkinUseCase
 import com.jn.dropbit.domain.usecase.GetCoinsUseCase
-import com.jn.dropbit.domain.usecase.GetLastAdTimeUseCase
 import com.jn.dropbit.domain.usecase.GetPlayerSkinUseCase
 import com.jn.dropbit.domain.usecase.GetUnlockedSkinsUseCase
 import com.jn.dropbit.domain.usecase.SaveCoinsUseCase
-import com.jn.dropbit.domain.usecase.SaveLastAdTimeUseCase
 import com.jn.dropbit.domain.usecase.SavePlayerSkinUseCase
 import com.jn.dropbit.presentation.base.BaseViewModel
 import com.jn.dropbit.utils.SoundManager
@@ -25,8 +23,6 @@ class ShopViewModel(
     private val buySkinUseCase: BuySkinUseCase,
     private val getPlayerSkinUseCase: GetPlayerSkinUseCase,
     private val savePlayerSkinUseCase: SavePlayerSkinUseCase,
-    private val getLastAdTimeUseCase: GetLastAdTimeUseCase,
-    private val saveLastAdTimeUseCase: SaveLastAdTimeUseCase,
     private val billingManager: BillingManager,
     private val soundManager: SoundManager,
 ) : BaseViewModel<ShopState, ShopIntent, ShopEffect>(ShopState()) {
@@ -42,13 +38,12 @@ class ShopViewModel(
             .launchIn(viewModelScope)
         getPlayerSkinUseCase().onEach { skin -> updateState { copy(selectedSkin = skin) } }
             .launchIn(viewModelScope)
-        getLastAdTimeUseCase().onEach { time -> updateState { copy(lastAdTime = time) } }
-            .launchIn(viewModelScope)
 
         billingManager.billingState.onEach { state -> updateState { copy(billingState = state) } }
             .launchIn(viewModelScope)
-        billingManager.products.onEach { products -> updateState { copy(products = products) } }
-            .launchIn(viewModelScope)
+        billingManager.products.onEach { products ->
+            updateState { copy(products = products) }
+        }.launchIn(viewModelScope)
 
         viewModelScope.launch {
             billingManager.purchaseSuccess.collectLatest { amount ->
@@ -66,7 +61,6 @@ class ShopViewModel(
                 intent.productId,
             )
 
-            ShopIntent.WatchAd -> watchAd()
             ShopIntent.RetryBilling -> billingManager.retryConnection()
         }
     }
@@ -93,13 +87,6 @@ class ShopViewModel(
         soundManager.play(R.raw.success)
         viewModelScope.launch {
             saveCoinsUseCase(currentState.coins + amount)
-        }
-    }
-
-    private fun watchAd() {
-        viewModelScope.launch {
-            saveLastAdTimeUseCase(System.currentTimeMillis())
-            addCoins(50)
         }
     }
 }

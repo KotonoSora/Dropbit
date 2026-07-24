@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.jn.dropbit.data.mapper.toDomain
 import com.jn.dropbit.data.mapper.toDto
@@ -13,6 +12,7 @@ import com.jn.dropbit.data.mapper.toScoreRecord
 import com.jn.dropbit.data.model.HistoryRecordDto
 import com.jn.dropbit.domain.model.GameMode
 import com.jn.dropbit.domain.model.HistoryRecord
+import com.jn.dropbit.domain.model.INITIAL_COINS
 import com.jn.dropbit.domain.model.ScoreRecord
 import com.jn.dropbit.domain.model.SettingsState
 import com.jn.dropbit.domain.repository.IGameRepository
@@ -50,19 +50,11 @@ class GameRepositoryImpl(
     }
 
     override fun getCoins(): Flow<Int> {
-        return dataStore.data.map { it[COINS] ?: 0 }
+        return dataStore.data.map { it[COINS] ?: INITIAL_COINS }
     }
 
     override suspend fun saveCoins(coins: Int) {
         dataStore.edit { it[COINS] = coins }
-    }
-
-    override fun getLastAdTime(): Flow<Long> {
-        return dataStore.data.map { it[LAST_AD_TIME] ?: 0L }
-    }
-
-    override suspend fun saveLastAdTime(time: Long) {
-        dataStore.edit { it[LAST_AD_TIME] = time }
     }
 
     override fun getHistory(): Flow<List<HistoryRecord>> {
@@ -119,7 +111,6 @@ class GameRepositoryImpl(
     companion object {
         private val SELECTED_SKIN = stringPreferencesKey("selected_skin")
         private val COINS = intPreferencesKey("coins")
-        private val LAST_AD_TIME = longPreferencesKey("last_ad_time")
         private val HISTORY = stringPreferencesKey("history")
         private val SOUND_ENABLED = booleanPreferencesKey("sound_enabled")
         private val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")

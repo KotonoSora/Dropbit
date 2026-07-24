@@ -32,10 +32,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jn.dropbit.domain.model.DAILY_CHALLENGE_REWARD
 import com.jn.dropbit.domain.model.GameMode
 import com.jn.dropbit.features.common.ui.DropbitScreen
+import com.jn.dropbit.features.common.ui.HeaderBar
 import com.jn.dropbit.features.common.ui.NeonButton
 import com.jn.dropbit.features.common.ui.NeonText
 import com.jn.dropbit.features.game.GameIntent
@@ -47,18 +50,20 @@ import com.jn.dropbit.ui.theme.NeonGreen
 import com.jn.dropbit.ui.theme.NeonOrange
 import com.jn.dropbit.ui.theme.NeonPink
 import com.jn.dropbit.ui.theme.NeonPurple
+import com.jn.dropbit.ui.theme.NeonYellow
 import com.jn.dropbit.ui.theme.ensureContrast
 
 @Composable
 fun GameScreen(
     viewModel: GameViewModel,
     mode: GameMode,
+    isChallenge: Boolean = false,
     onBackToMenu: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(mode) {
-        viewModel.onIntent(GameIntent.StartGame(mode))
+    LaunchedEffect(mode, isChallenge) {
+        viewModel.onIntent(GameIntent.StartGame(mode, isChallenge))
     }
 
     GameScreenContent(
@@ -119,10 +124,16 @@ fun GameScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .padding(32.dp)
             ) {
+                HeaderBar(
+                    coins = uiState.coins,
+                    onBackClick = onBackToMenu // Allow quitting via back button in header
+                )
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     NeonText(
@@ -131,7 +142,7 @@ fun GameScreenContent(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
-                    if (mode == GameMode.TIME_ATTACK) {
+                    if (mode == GameMode.TIME_ATTACK || gameState.isChallenge) {
                         NeonText(
                             "TIME: ${gameState.timeLeft / 1000}s",
                             color = NeonPink,
@@ -140,11 +151,25 @@ fun GameScreenContent(
                         )
                     }
                 }
+
+                if (gameState.isChallenge && !gameState.isGameOver) {
+                    NeonText(
+                        "REWARD: $ $DAILY_CHALLENGE_REWARD",
+                        color = NeonYellow,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black,
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    )
+                }
             }
 
             if (gameState.isGameOver) {
                 GameOverOverlay(
                     score = gameState.score,
+                    coinsEarned = gameState.coinsEarned,
+                    isChallenge = gameState.isChallenge,
+                    timeLeft = gameState.timeLeft,
+                    gameMode = mode,
                     onRestart = onRestart,
                     onMenu = onBackToMenu
                 )
@@ -154,7 +179,24 @@ fun GameScreenContent(
 }
 
 @Composable
-fun GameOverOverlay(score: Int, onRestart: () -> Unit, onMenu: () -> Unit) {
+fun GameOverOverlay(
+    score: Int,
+    coinsEarned: Int = 0,
+    isChallenge: Boolean = false,
+    timeLeft: Long = 0L,
+    gameMode: GameMode = GameMode.CLASSIC,
+    onRestart: () -> Unit,
+    onMenu: () -> Unit
+) {
+    val isWin = timeLeft <= 0 && (isChallenge || gameMode == GameMode.TIME_ATTACK)
+    val title = when {
+        isWin && isChallenge -> "CHALLENGE COMPLETE"
+        isWin -> "VICTORY"
+        isChallenge -> "CHALLENGE FAILED"
+        else -> "GAME OVER"
+    }
+    val titleColor = if (isWin) NeonGreen else NeonPink
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -166,18 +208,29 @@ fun GameOverOverlay(score: Int, onRestart: () -> Unit, onMenu: () -> Unit) {
             modifier = Modifier.navigationBarsPadding()
         ) {
             NeonText(
-                "GAME OVER",
-                color = NeonPink,
+                title,
+                color = titleColor,
                 style = MaterialTheme.typography.displaySmall,
                 glowRadius = 8.dp,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
+                textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(16.dp))
-            Text(
-                "FINAL SCORE: $score",
-                color = Color.White.copy(alpha = 0.9f),
-                style = MaterialTheme.typography.titleLarge
-            )
+            if (coinsEarned > 0) {
+                NeonText(
+                    "REWARD EARNED: $ $coinsEarned",
+                    color = NeonYellow,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                )
+            } else {
+                Text(
+                    "FINAL SCORE: $score",
+                    color = Color.White.copy(alpha = 0.9f),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
             Spacer(Modifier.height(48.dp))
             NeonButton(
                 onClick = onRestart,
@@ -216,22 +269,89 @@ fun GameOverOverlay(score: Int, onRestart: () -> Unit, onMenu: () -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-fun GameScreenPreview() {
+fun GameActivePreview() {
     DropbitTheme {
         GameScreenContent(
             uiState = GameUIState(),
             onMovePlayer = {},
             onRestart = {}
-        ) {
-            // onBackToMenu
-        }
+        ) { /* onBackToMenu */ }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GameOverOverlayPreview() {
+fun ChallengeActivePreview() {
     DropbitTheme {
-        GameOverOverlay(score = 500, onRestart = {}, onMenu = {})
+        GameScreenContent(
+            uiState = GameUIState(
+                gameMode = GameMode.ENDLESS,
+                gameState = com.jn.dropbit.domain.model.GameState(
+                    isChallenge = true,
+                    timeLeft = 115000L,
+                    score = 420
+                )
+            ),
+            onMovePlayer = {},
+            onRestart = {}
+        ) { /* onBackToMenu */ }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun VictoryPreview() {
+    DropbitTheme {
+        GameScreenContent(
+            uiState = GameUIState(
+                gameMode = GameMode.TIME_ATTACK,
+                gameState = com.jn.dropbit.domain.model.GameState(
+                    isGameOver = true,
+                    coinsEarned = 30,
+                    score = 850,
+                    timeLeft = 0
+                )
+            ),
+            onMovePlayer = {},
+            onRestart = {}
+        ) { /* onBackToMenu */ }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChallengeSuccessPreview() {
+    DropbitTheme {
+        GameScreenContent(
+            uiState = GameUIState(
+                gameState = com.jn.dropbit.domain.model.GameState(
+                    isGameOver = true,
+                    isChallenge = true,
+                    coinsEarned = 50,
+                    score = 1200,
+                    timeLeft = 0
+                )
+            ),
+            onMovePlayer = {},
+            onRestart = {}
+        ) { /* onBackToMenu */ }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GameOverPreview() {
+    DropbitTheme {
+        GameScreenContent(
+            uiState = GameUIState(
+                gameState = com.jn.dropbit.domain.model.GameState(
+                    isGameOver = true,
+                    coinsEarned = 0,
+                    score = 300
+                )
+            ),
+            onMovePlayer = {},
+            onRestart = {}
+        ) { /* onBackToMenu */ }
     }
 }

@@ -8,14 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jn.dropbit.domain.model.GameMode
 import com.jn.dropbit.domain.model.HistoryRecord
+import com.jn.dropbit.domain.model.INITIAL_COINS
 import com.jn.dropbit.features.common.ui.DropbitScreen
 import com.jn.dropbit.features.common.ui.HeaderBar
 import com.jn.dropbit.features.common.ui.NeonCard
@@ -38,7 +34,6 @@ import com.jn.dropbit.features.common.ui.NeonText
 import com.jn.dropbit.features.history.HistoryUIState
 import com.jn.dropbit.features.history.HistoryViewModel
 import com.jn.dropbit.ui.theme.DropbitTheme
-import com.jn.dropbit.ui.theme.NeonBlue
 import com.jn.dropbit.ui.theme.NeonGreen
 import com.jn.dropbit.ui.theme.NeonOrange
 import com.jn.dropbit.ui.theme.NeonPink
@@ -57,7 +52,11 @@ fun ScoresScreen(viewModel: HistoryViewModel, onBack: () -> Unit) {
 @Composable
 fun ScoresScreenContent(state: HistoryUIState, onBack: () -> Unit) {
     DropbitScreen {
-        HeaderBar(coins = state.coins)
+        HeaderBar(
+            coins = state.coins,
+            title = "HIGH SCORES",
+            onBackClick = onBack
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -65,25 +64,11 @@ fun ScoresScreenContent(state: HistoryUIState, onBack: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            NeonText(
-                "HIGH SCORES",
-                style = MaterialTheme.typography.headlineMedium,
-                color = NeonBlue
-            )
             Spacer(Modifier.height(48.dp))
 
             ScoreRow("CLASSIC", state.highScores[GameMode.CLASSIC] ?: 0, NeonGreen)
             ScoreRow("TIME ATTACK", state.highScores[GameMode.TIME_ATTACK] ?: 0, NeonPurple)
             ScoreRow("ENDLESS", state.highScores[GameMode.ENDLESS] ?: 0, NeonPink)
-
-            IconButton(onClick = onBack, modifier = Modifier.padding(top = 32.dp)) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = NeonBlue,
-                    modifier = Modifier.size(32.dp)
-                )
-            }
         }
     }
 }
@@ -132,17 +117,16 @@ fun HistoryScreenContent(state: HistoryUIState, onBack: () -> Unit) {
     val dateFormat = remember { SimpleDateFormat("MM/dd HH:mm", Locale.getDefault()) }
 
     DropbitScreen {
-        HeaderBar(coins = state.coins)
+        HeaderBar(
+            coins = state.coins,
+            title = "MY HISTORY",
+            onBackClick = onBack
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp, vertical = 8.dp)
         ) {
-            NeonText(
-                "MY HISTORY",
-                style = MaterialTheme.typography.headlineMedium,
-                color = NeonBlue
-            )
             Spacer(Modifier.height(24.dp))
 
             Row(
@@ -220,13 +204,6 @@ fun HistoryScreenContent(state: HistoryUIState, onBack: () -> Unit) {
                     HorizontalDivider(color = Color.Gray.copy(alpha = 0.1f))
                 }
             }
-            IconButton(onClick = onBack) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = NeonBlue
-                )
-            }
         }
     }
 }
@@ -237,6 +214,7 @@ fun ScoresScreenPreview() {
     DropbitTheme {
         ScoresScreenContent(
             state = HistoryUIState(
+                coins = INITIAL_COINS,
                 highScores = mapOf(GameMode.CLASSIC to 150, GameMode.ENDLESS to 300)
             )
         ) {
@@ -251,6 +229,7 @@ fun HistoryScreenPreview() {
     DropbitTheme {
         HistoryScreenContent(
             state = HistoryUIState(
+                coins = INITIAL_COINS,
                 history = listOf(
                     HistoryRecord(
                         date = System.currentTimeMillis(),

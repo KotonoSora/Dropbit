@@ -8,10 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -31,7 +27,6 @@ import com.jn.dropbit.features.settings.SettingsUIState
 import com.jn.dropbit.features.settings.SettingsViewModel
 import com.jn.dropbit.ui.theme.DropbitTheme
 import com.jn.dropbit.ui.theme.NeonBlue
-import com.jn.dropbit.ui.theme.ensureContrast
 
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
@@ -52,17 +47,16 @@ fun SettingsScreenContent(
     onBack: () -> Unit
 ) {
     DropbitScreen {
-        HeaderBar(coins = state.coins)
+        HeaderBar(
+            coins = state.coins,
+            title = "SETTINGS",
+            onBackClick = onBack
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp, vertical = 8.dp)
         ) {
-            Text(
-                "SETTINGS",
-                style = MaterialTheme.typography.headlineMedium,
-                color = NeonBlue.ensureContrast()
-            )
             Spacer(Modifier.height(32.dp))
 
             SettingsToggle("Sound Effects", state.settings.soundEnabled, onToggleSound)
@@ -73,13 +67,6 @@ fun SettingsScreenContent(
             )
 
             Spacer(Modifier.weight(1f))
-            IconButton(onClick = onBack) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = NeonBlue
-                )
-            }
         }
     }
 }

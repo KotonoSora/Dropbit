@@ -30,8 +30,6 @@ class GameViewModelTest {
         override suspend fun saveSelectedSkin(skin: String) {}
         override fun getCoins(): Flow<Int> = flowOf(0)
         override suspend fun saveCoins(coins: Int) {}
-        override fun getLastAdTime(): Flow<Long> = flowOf(0L)
-        override suspend fun saveLastAdTime(time: Long) {}
         override fun getHistory(): Flow<List<com.jn.dropbit.domain.model.HistoryRecord>> = flowOf(emptyList())
         override suspend fun saveHistory(record: com.jn.dropbit.domain.model.HistoryRecord) {}
         override fun getSettings(): Flow<com.jn.dropbit.domain.model.SettingsState> = flowOf(com.jn.dropbit.domain.model.SettingsState())
@@ -68,6 +66,7 @@ class GameViewModelTest {
         viewModel = GameViewModel(
             processGameOverUseCase,
             getPlayerSkinUseCase,
+            getCoinsUseCase,
             gameEngine,
             fakeSoundManager
         )

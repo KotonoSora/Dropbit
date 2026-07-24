@@ -3,8 +3,10 @@ package com.jn.dropbit.features.game
 import androidx.lifecycle.viewModelScope
 import com.jn.dropbit.R
 import com.jn.dropbit.domain.engine.GameEngine
+import com.jn.dropbit.domain.model.DAILY_CHALLENGE_DURATION_MS
 import com.jn.dropbit.domain.model.GameMode
 import com.jn.dropbit.domain.model.GameState
+import com.jn.dropbit.domain.usecase.GetCoinsUseCase
 import com.jn.dropbit.domain.usecase.GetPlayerSkinUseCase
 import com.jn.dropbit.domain.usecase.ProcessGameOverUseCase
 import com.jn.dropbit.presentation.base.BaseViewModel
@@ -18,6 +20,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class GameViewModel(
     private val processGameOverUseCase: ProcessGameOverUseCase,
     getPlayerSkinUseCase: GetPlayerSkinUseCase,
+    getCoinsUseCase: GetCoinsUseCase,
     private val gameEngine: GameEngine,
     private val soundManager: SoundManager,
 ) : BaseViewModel<GameUIState, GameIntent, GameEffect>(GameUIState()) {
@@ -29,19 +32,35 @@ class GameViewModel(
         getPlayerSkinUseCase().onEach { skin ->
             updateState { copy(playerSkin = skin) }
         }.launchIn(viewModelScope)
+
+        getCoinsUseCase().onEach { coins ->
+            updateState { copy(coins = coins) }
+        }.launchIn(viewModelScope)
     }
 
     override fun onIntent(intent: GameIntent) {
         when (intent) {
-            is GameIntent.StartGame -> startGame(intent.mode)
+            is GameIntent.StartGame -> startGame(intent.mode, intent.isChallenge)
             is GameIntent.MovePlayer -> movePlayer(intent.deltaX)
-            GameIntent.RestartGame -> startGame(currentState.gameMode)
+            GameIntent.RestartGame -> startGame(
+                currentState.gameMode,
+                currentState.gameState.isChallenge
+            )
         }
     }
 
-    private fun startGame(mode: GameMode) {
+    private fun startGame(mode: GameMode, isChallenge: Boolean) {
         soundManager.play(R.raw.click)
-        updateState { copy(gameState = GameState(gameMode = mode), gameMode = mode) }
+        updateState {
+            copy(
+                gameState = GameState(
+                    gameMode = mode,
+                    isChallenge = isChallenge,
+                    timeLeft = if (isChallenge) DAILY_CHALLENGE_DURATION_MS else 60_000L
+                ),
+                gameMode = mode
+            )
+        }
         sessionDuration = 0L
         lastMilestoneScore = 0
         startGameLoop()
@@ -75,9 +94,15 @@ class GameViewModel(
     private fun handleGameOver() {
         val mode = currentState.gameMode
         val score = currentState.gameState.score
+        val earned = currentState.gameState.coinsEarned
 
         viewModelScope.launch {
-            val (isHighScore, _) = processGameOverUseCase(mode, score)
+            val isHighScore = processGameOverUseCase(
+                mode = mode,
+                score = score,
+                coinsEarned = earned
+            )
+            updateState { copy(coinsEarned = earned) }
 
             if (isHighScore && score > 0) {
                 soundManager.play(R.raw.win)
