@@ -3,12 +3,8 @@ package com.jn.dropbit.features.shop
 import androidx.lifecycle.viewModelScope
 import com.jn.dropbit.R
 import com.jn.dropbit.billing.BillingManager
-import com.jn.dropbit.domain.usecase.BuySkinUseCase
 import com.jn.dropbit.domain.usecase.GetCoinsUseCase
-import com.jn.dropbit.domain.usecase.GetPlayerSkinUseCase
-import com.jn.dropbit.domain.usecase.GetUnlockedSkinsUseCase
 import com.jn.dropbit.domain.usecase.SaveCoinsUseCase
-import com.jn.dropbit.domain.usecase.SavePlayerSkinUseCase
 import com.jn.dropbit.presentation.base.BaseViewModel
 import com.jn.dropbit.utils.SoundManager
 import kotlinx.coroutines.flow.collectLatest
@@ -19,10 +15,6 @@ import kotlinx.coroutines.launch
 class ShopViewModel(
     private val getCoinsUseCase: GetCoinsUseCase,
     private val saveCoinsUseCase: SaveCoinsUseCase,
-    private val getUnlockedSkinsUseCase: GetUnlockedSkinsUseCase,
-    private val buySkinUseCase: BuySkinUseCase,
-    private val getPlayerSkinUseCase: GetPlayerSkinUseCase,
-    private val savePlayerSkinUseCase: SavePlayerSkinUseCase,
     private val billingManager: BillingManager,
     private val soundManager: SoundManager,
 ) : BaseViewModel<ShopState, ShopIntent, ShopEffect>(ShopState()) {
@@ -33,10 +25,6 @@ class ShopViewModel(
 
     private fun observeData() {
         getCoinsUseCase().onEach { coins -> updateState { copy(coins = coins) } }
-            .launchIn(viewModelScope)
-        getUnlockedSkinsUseCase().onEach { skins -> updateState { copy(unlockedSkins = skins) } }
-            .launchIn(viewModelScope)
-        getPlayerSkinUseCase().onEach { skin -> updateState { copy(selectedSkin = skin) } }
             .launchIn(viewModelScope)
 
         billingManager.billingState.onEach { state -> updateState { copy(billingState = state) } }
@@ -54,32 +42,12 @@ class ShopViewModel(
 
     override fun onIntent(intent: ShopIntent) {
         when (intent) {
-            is ShopIntent.BuySkin -> buySkin(intent.name, intent.price)
-            is ShopIntent.SelectSkin -> selectSkin(intent.name)
             is ShopIntent.PurchaseProduct -> billingManager.launchPurchaseFlow(
                 intent.activity,
                 intent.productId,
             )
 
             ShopIntent.RetryBilling -> billingManager.retryConnection()
-        }
-    }
-
-    private fun buySkin(name: String, price: Int) {
-        viewModelScope.launch {
-            val success = buySkinUseCase(name, price)
-            if (success) {
-                soundManager.play(R.raw.success)
-            } else {
-                soundManager.play(R.raw.error)
-            }
-        }
-    }
-
-    private fun selectSkin(name: String) {
-        soundManager.play(R.raw.click)
-        viewModelScope.launch {
-            savePlayerSkinUseCase(name)
         }
     }
 

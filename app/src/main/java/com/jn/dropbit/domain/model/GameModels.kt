@@ -33,6 +33,5 @@ data class HistoryRecord(
 )
 
 data class SettingsState(
-    val soundEnabled: Boolean = true,
-    val notificationsEnabled: Boolean = true
+    val soundEnabled: Boolean = true
 )

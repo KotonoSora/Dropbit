@@ -10,6 +10,7 @@ import com.jn.dropbit.data.mapper.toDomain
 import com.jn.dropbit.data.mapper.toDto
 import com.jn.dropbit.data.mapper.toScoreRecord
 import com.jn.dropbit.data.model.HistoryRecordDto
+import com.jn.dropbit.domain.model.DEFAULT_SKIN
 import com.jn.dropbit.domain.model.GameMode
 import com.jn.dropbit.domain.model.HistoryRecord
 import com.jn.dropbit.domain.model.INITIAL_COINS
@@ -42,7 +43,7 @@ class GameRepositoryImpl(
     }
 
     override fun getSelectedSkin(): Flow<String> {
-        return dataStore.data.map { it[SELECTED_SKIN] ?: "Blue" }
+        return dataStore.data.map { it[SELECTED_SKIN] ?: DEFAULT_SKIN }
     }
 
     override suspend fun saveSelectedSkin(skin: String) {
@@ -79,8 +80,7 @@ class GameRepositoryImpl(
     override fun getSettings(): Flow<SettingsState> {
         return dataStore.data.map { preferences ->
             SettingsState(
-                soundEnabled = preferences[SOUND_ENABLED] ?: true,
-                notificationsEnabled = preferences[NOTIFICATIONS_ENABLED] ?: true
+                soundEnabled = preferences[SOUND_ENABLED] ?: true
             )
         }
     }
@@ -88,20 +88,19 @@ class GameRepositoryImpl(
     override suspend fun saveSettings(settings: SettingsState) {
         dataStore.edit { preferences ->
             preferences[SOUND_ENABLED] = settings.soundEnabled
-            preferences[NOTIFICATIONS_ENABLED] = settings.notificationsEnabled
         }
     }
 
     override fun getUnlockedSkins(): Flow<List<String>> {
         return dataStore.data.map { preferences ->
-            val unlocked = preferences[UNLOCKED_SKINS] ?: "Blue"
+            val unlocked = preferences[UNLOCKED_SKINS] ?: DEFAULT_SKIN
             unlocked.split(",")
         }
     }
 
     override suspend fun unlockSkin(skin: String) {
         dataStore.edit { preferences ->
-            val current = preferences[UNLOCKED_SKINS] ?: "Blue"
+            val current = preferences[UNLOCKED_SKINS] ?: DEFAULT_SKIN
             if (!current.split(",").contains(skin)) {
                 preferences[UNLOCKED_SKINS] = "$current,$skin"
             }
@@ -113,7 +112,6 @@ class GameRepositoryImpl(
         private val COINS = intPreferencesKey("coins")
         private val HISTORY = stringPreferencesKey("history")
         private val SOUND_ENABLED = booleanPreferencesKey("sound_enabled")
-        private val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         private val UNLOCKED_SKINS = stringPreferencesKey("unlocked_skins")
     }
 }

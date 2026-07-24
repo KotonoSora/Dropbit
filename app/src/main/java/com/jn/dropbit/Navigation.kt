@@ -20,7 +20,6 @@ import com.jn.dropbit.features.history.ui.ScoresScreen
 import com.jn.dropbit.features.home.HomeViewModel
 import com.jn.dropbit.features.home.ui.HomeScreen
 import com.jn.dropbit.features.settings.ui.SettingsScreen
-import com.jn.dropbit.features.shop.ui.CharacterSelectionScreen
 import com.jn.dropbit.features.shop.ui.ShopCoinScreen
 
 @Composable
@@ -59,12 +58,6 @@ fun DropbitNavigation() {
                     soundManager.play(R.raw.click)
                     navController.navigate("game/${mode.name}?challenge=false")
                 },
-                onBack = popBackWithSound
-            )
-        }
-        composable("skins") {
-            CharacterSelectionScreen(
-                viewModel = viewModel(factory = factory),
                 onBack = popBackWithSound
             )
         }

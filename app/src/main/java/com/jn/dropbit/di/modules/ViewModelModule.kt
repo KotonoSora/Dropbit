@@ -30,10 +30,6 @@ class ViewModelModule(
                     ShopViewModel(
                         domainComponent.getCoinsUseCase,
                         domainComponent.saveCoinsUseCase,
-                        domainComponent.getUnlockedSkinsUseCase,
-                        domainComponent.buySkinUseCase,
-                        domainComponent.getPlayerSkinUseCase,
-                        domainComponent.savePlayerSkinUseCase,
                         dataComponent.billingManager,
                         dataComponent.soundManager
                     ) as T
@@ -53,6 +49,8 @@ class ViewModelModule(
                     SettingsViewModel(
                         domainComponent.getSettingsUseCase,
                         domainComponent.getCoinsUseCase,
+                        domainComponent.getPlayerSkinUseCase,
+                        domainComponent.savePlayerSkinUseCase,
                         domainComponent.saveSettingsUseCase,
                         dataComponent.soundManager
                     ) as T

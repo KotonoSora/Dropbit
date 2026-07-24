@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jn.dropbit.domain.model.ALL_SKINS
 import com.jn.dropbit.domain.model.DAILY_CHALLENGE_REWARD
 import com.jn.dropbit.domain.model.GameMode
 import com.jn.dropbit.features.common.ui.DropbitScreen
@@ -47,9 +48,7 @@ import com.jn.dropbit.features.game.GameViewModel
 import com.jn.dropbit.ui.theme.DropbitTheme
 import com.jn.dropbit.ui.theme.NeonBlue
 import com.jn.dropbit.ui.theme.NeonGreen
-import com.jn.dropbit.ui.theme.NeonOrange
 import com.jn.dropbit.ui.theme.NeonPink
-import com.jn.dropbit.ui.theme.NeonPurple
 import com.jn.dropbit.ui.theme.NeonYellow
 import com.jn.dropbit.ui.theme.ensureContrast
 
@@ -96,13 +95,7 @@ fun GameScreenContent(
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // Draw player
-                val playerColor = when (uiState.playerSkin) {
-                    "Red" -> NeonPink
-                    "Green" -> NeonGreen
-                    "Purple" -> NeonPurple
-                    "Orange" -> NeonOrange
-                    else -> NeonBlue
-                }
+                val playerColor = ALL_SKINS.find { it.name == uiState.playerSkin }?.color ?: NeonBlue
                 drawRect(
                     color = playerColor,
                     topLeft = Offset(gameState.playerX, 1800f),

@@ -12,6 +12,7 @@ val NeonPink = Color(0xFFFF007F)
 val NeonPurple = Color(0xFFB026FF)
 val NeonOrange = Color(0xFFFFAC1C)
 val NeonYellow = Color(0xFFFFEB3B)
+val NeonRed = Color(0xFFF44336)
 
 fun Color.softNeon(): Color = lerp(this, Color.White, 0.7f)
 
