@@ -70,6 +70,9 @@ class GameViewModel(
         viewModelScope.launch {
             while (!currentState.gameState.isGameOver) {
                 val newState = gameEngine.updateGame(currentState.gameState, 16, sessionDuration)
+                updateState { copy(gameState = newState) }
+
+                if (newState.isGameOver) break
 
                 // Play milestone sound every 100 points
                 if (newState.score / 100 > lastMilestoneScore / 100) {
@@ -77,7 +80,6 @@ class GameViewModel(
                     lastMilestoneScore = newState.score
                 }
 
-                updateState { copy(gameState = newState) }
                 delay(16.milliseconds)
                 sessionDuration += 16
             }

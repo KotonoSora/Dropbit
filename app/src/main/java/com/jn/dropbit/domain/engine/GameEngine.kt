@@ -23,31 +23,55 @@ class GameEngine {
             (currentState.timeLeft - deltaTime).coerceAtLeast(0L)
         } else currentState.timeLeft
 
-        val isGameOverByTime = isTimerMode && (newTimeLeft <= 0L)
-
-        // Difficulty scaling: increases speed and spawn rate over time
-        val difficultyFactor = 1.0f + (sessionDuration / 10000f)
-        val spawnRate = (5 + (difficultyFactor * 2).toInt()).coerceAtMost(20)
-        val baseSpeed = 10f * difficultyFactor
-
-        // Update obstacles
+        // Update obstacles first so collision is checked against their NEW positions
         val newObstacles = currentState.obstacles
             .asSequence()
             .map { it.copy(position = it.position.copy(y = it.position.y + it.speed)) }
             .filter { it.position.y < 2500f } // Screen height buffer
             .toList()
 
-        // Collision detection
+        // Collision detection: Circle-Rect intersection
         val playerRect = Rect(Offset(currentState.playerX, 1800f), playerSize)
         val hasCollision = newObstacles.any { obstacle ->
-            val obstacleRect = Rect(
-                obstacle.position.x - obstacleRadius,
-                obstacle.position.y - obstacleRadius,
-                obstacle.position.x + obstacleRadius,
-                obstacle.position.y + obstacleRadius
-            )
-            playerRect.overlaps(obstacleRect)
+            // Find the closest point to the circle within the rectangle
+            val closestX = obstacle.position.x.coerceIn(playerRect.left, playerRect.right)
+            val closestY = obstacle.position.y.coerceIn(playerRect.top, playerRect.bottom)
+
+            // Calculate the distance between the circle's center and this closest point
+            val distanceX = obstacle.position.x - closestX
+            val distanceY = obstacle.position.y - closestY
+
+            // Collision if distance is less than radius squared (to avoid sqrt)
+            (distanceX * distanceX + distanceY * distanceY) < (obstacleRadius * obstacleRadius)
         }
+
+        val isGameOverByTime = isTimerMode && (newTimeLeft <= 0L)
+        val gameIsOver = hasCollision || isGameOverByTime
+
+        if (gameIsOver) {
+            val coinsEarned = when {
+                currentState.isChallenge && isGameOverByTime -> DAILY_CHALLENGE_REWARD
+                currentState.isChallenge -> 0
+                else -> NORMAL_GAME_REWARD
+            }
+            return currentState.copy(
+                obstacles = newObstacles,
+                timeLeft = newTimeLeft,
+                isGameOver = true,
+                coinsEarned = coinsEarned
+            )
+        }
+
+        // Score logic: Count obstacles that passed the player (bottom line at 1900f)
+        val passedObstaclesCount = newObstacles.count { newObs ->
+            val oldObs = currentState.obstacles.find { it.id == newObs.id }
+            oldObs != null && oldObs.position.y < 1900f && newObs.position.y >= 1900f
+        }
+
+        // Difficulty scaling: increases speed and spawn rate over time
+        val difficultyFactor = 1.0f + (sessionDuration / 10000f)
+        val spawnRate = (5 + (difficultyFactor * 2).toInt()).coerceAtMost(20)
+        val baseSpeed = 10f * difficultyFactor
 
         // Randomly add new obstacles
         var nextCounter = currentState.obstacleCounter
@@ -61,23 +85,11 @@ class GameEngine {
             newObstacles
         }
 
-        val gameIsOver =
-            (hasCollision && currentState.gameMode != GameMode.ENDLESS) || isGameOverByTime
-
-        val coinsEarned = if (gameIsOver) {
-            when {
-                currentState.isChallenge && isGameOverByTime -> DAILY_CHALLENGE_REWARD
-                currentState.isChallenge -> 0
-                else -> NORMAL_GAME_REWARD
-            }
-        } else 0
-
         return currentState.copy(
             obstacles = finalObstacles,
-            score = currentState.score + 1,
+            score = currentState.score + passedObstaclesCount,
             timeLeft = newTimeLeft,
-            isGameOver = gameIsOver,
-            coinsEarned = coinsEarned,
+            isGameOver = false,
             obstacleCounter = nextCounter
         )
     }
