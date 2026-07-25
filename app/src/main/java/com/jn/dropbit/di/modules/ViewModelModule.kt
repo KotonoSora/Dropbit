@@ -38,6 +38,7 @@ class ViewModelModule(
                 modelClass.isAssignableFrom(GameViewModel::class.java) -> {
                     GameViewModel(
                         domainComponent.processGameOverUseCase,
+                        domainComponent.saveCoinsUseCase,
                         domainComponent.getPlayerSkinUseCase,
                         domainComponent.getCoinsUseCase,
                         domainComponent.gameEngine,

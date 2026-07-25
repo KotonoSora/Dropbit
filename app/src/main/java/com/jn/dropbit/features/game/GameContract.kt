@@ -16,6 +16,8 @@ data class GameUIState(
 sealed class GameIntent {
     data class StartGame(val mode: GameMode, val isChallenge: Boolean = false) : GameIntent()
     data class MovePlayer(val deltaX: Float) : GameIntent()
+    data class UpdateMetrics(val paddingUnits: Float, val playerHeightUnits: Float) : GameIntent()
+    object BuyHeart : GameIntent()
     object RestartGame : GameIntent()
 }
 

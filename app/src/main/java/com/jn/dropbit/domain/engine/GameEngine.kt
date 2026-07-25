@@ -3,93 +3,151 @@ package com.jn.dropbit.domain.engine
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import com.jn.dropbit.domain.model.DAILY_CHALLENGE_REWARD
+import com.jn.dropbit.domain.model.FallingObjectType
 import com.jn.dropbit.domain.model.GameMode
 import com.jn.dropbit.domain.model.GameState
-import com.jn.dropbit.domain.model.NORMAL_GAME_REWARD
 import com.jn.dropbit.domain.model.Obstacle
 import kotlin.random.Random
 
 class GameEngine {
-    private val playerSize = Size(100f, 100f)
     private val obstacleRadius = 30f
 
-    fun updateGame(currentState: GameState, deltaTime: Long, sessionDuration: Long): GameState {
+    fun updateGame(
+        currentState: GameState,
+        deltaTime: Long,
+        sessionDuration: Long,
+        playerSize: Size = Size(100f, 100f)
+    ): GameState {
         if (currentState.isGameOver) return currentState
 
-        // Update Time Attack mode or Challenge
-        val isTimerMode = currentState.gameMode == GameMode.TIME_ATTACK || currentState.isChallenge
+        // Update timers
+        val isTimerMode = currentState.gameMode == GameMode.CLASSIC ||
+                currentState.gameMode == GameMode.TIME_ATTACK ||
+                currentState.isChallenge
+
         val newTimeLeft = if (isTimerMode) {
             (currentState.timeLeft - deltaTime).coerceAtLeast(0L)
-        } else currentState.timeLeft
+        } else {
+            currentState.timeLeft
+        }
 
-        // Update obstacles first so collision is checked against their NEW positions
-        val newObstacles = currentState.obstacles
+        val newTimePlayed = currentState.timePlayed + deltaTime
+
+        // Update obstacles
+        val movedObstacles = currentState.obstacles
             .asSequence()
             .map { it.copy(position = it.position.copy(y = it.position.y + it.speed)) }
-            .filter { it.position.y < 2500f } // Screen height buffer
+            .filter { it.position.y < 2500f }
             .toList()
 
-        // Collision detection: Circle-Rect intersection
+        // Collision detection
         val playerRect = Rect(Offset(currentState.playerX, 1800f), playerSize)
-        val hasCollision = newObstacles.any { obstacle ->
-            // Find the closest point to the circle within the rectangle
+        val collidingObstacle = movedObstacles.find { obstacle ->
             val closestX = obstacle.position.x.coerceIn(playerRect.left, playerRect.right)
             val closestY = obstacle.position.y.coerceIn(playerRect.top, playerRect.bottom)
-
-            // Calculate the distance between the circle's center and this closest point
             val distanceX = obstacle.position.x - closestX
             val distanceY = obstacle.position.y - closestY
-
-            // Collision if distance is less than radius squared (to avoid sqrt)
             (distanceX * distanceX + distanceY * distanceY) < (obstacleRadius * obstacleRadius)
         }
 
-        val isGameOverByTime = isTimerMode && (newTimeLeft <= 0L)
-        val gameIsOver = hasCollision || isGameOverByTime
+        var currentHearts = currentState.hearts
+        var currentObstacles = movedObstacles
+        var isGameOver = false
+        var isVictory = false
+        var hasJustCollided = false
+        var hasCollectedHeart = false
 
-        if (gameIsOver) {
-            val coinsEarned = when {
-                currentState.isChallenge && isGameOverByTime -> DAILY_CHALLENGE_REWARD
-                currentState.isChallenge -> 0
-                else -> NORMAL_GAME_REWARD
+        if (collidingObstacle != null) {
+            if (collidingObstacle.type == FallingObjectType.HEART) {
+                currentHearts++
+                hasCollectedHeart = true
+                currentObstacles = movedObstacles.filter { it.id != collidingObstacle.id }
+            } else {
+                currentHearts--
+                hasJustCollided = true
+                if (currentHearts <= 0) {
+                    isGameOver = true
+                    isVictory = false
+                } else {
+                    // Remove the obstacle that hit the player so it doesn't collide again
+                    currentObstacles = movedObstacles.filter { it.id != collidingObstacle.id }
+                }
+            }
+        }
+
+        val isTimeOver = isTimerMode && newTimeLeft <= 0L
+        if (!isGameOver && isTimeOver) {
+            isGameOver = true
+            isVictory = true
+        }
+
+        // Score logic - hearts don't count for score
+        val passedObstaclesCount = currentObstacles.count { newObs ->
+            val oldObs = currentState.obstacles.find { it.id == newObs.id }
+            oldObs != null && 
+            oldObs.type == FallingObjectType.OBSTACLE &&
+            oldObs.position.y < 2000f && newObs.position.y >= 2000f
+        }
+        val finalScore = currentState.score + passedObstaclesCount
+
+        if (isGameOver) {
+            val coinsEarned = if (isVictory) {
+                if (currentState.isChallenge) (finalScore / 10) + 50
+                else finalScore / 10
+            } else {
+                finalScore / 20
             }
             return currentState.copy(
-                obstacles = newObstacles,
+                obstacles = currentObstacles,
+                score = finalScore,
                 timeLeft = newTimeLeft,
+                timePlayed = newTimePlayed,
+                hearts = currentHearts.coerceAtLeast(0),
                 isGameOver = true,
+                isVictory = isVictory,
+                hasJustCollided = hasJustCollided,
+                hasCollectedHeart = hasCollectedHeart,
                 coinsEarned = coinsEarned
             )
         }
 
-        // Score logic: Count obstacles that passed the player (bottom line at 1900f)
-        val passedObstaclesCount = newObstacles.count { newObs ->
-            val oldObs = currentState.obstacles.find { it.id == newObs.id }
-            oldObs != null && oldObs.position.y < 1900f && newObs.position.y >= 1900f
-        }
+        val difficultyFactor = (1.0f + (sessionDuration / 30000f)).coerceAtMost(3.0f)
+        val spawnRate = (2 + (difficultyFactor * 0.8f).toInt()).coerceAtMost(5)
+        val baseSpeed = 7f * difficultyFactor
 
-        // Difficulty scaling: increases speed and spawn rate over time
-        val difficultyFactor = 1.0f + (sessionDuration / 10000f)
-        val spawnRate = (5 + (difficultyFactor * 2).toInt()).coerceAtMost(20)
-        val baseSpeed = 10f * difficultyFactor
-
-        // Randomly add new obstacles
         var nextCounter = currentState.obstacleCounter
         val finalObstacles = if (Random.nextInt(100) < spawnRate) {
-            newObstacles + Obstacle(
+            val type = if (Random.nextFloat() < 0.015f) {
+                FallingObjectType.HEART
+            } else {
+                FallingObjectType.OBSTACLE
+            }
+
+            val speed = if (type == FallingObjectType.HEART) {
+                4f // Hearts drop very slowly
+            } else {
+                baseSpeed * (0.8f + Random.nextFloat() * 0.7f) // Variable speeds
+            }
+
+            currentObstacles + Obstacle(
                 id = nextCounter++,
                 position = Offset(Random.nextFloat() * 1000f, -50f),
-                speed = baseSpeed + Random.nextFloat() * 5f
+                speed = speed,
+                type = type
             )
         } else {
-            newObstacles
+            currentObstacles
         }
 
         return currentState.copy(
             obstacles = finalObstacles,
-            score = currentState.score + passedObstaclesCount,
+            score = finalScore,
             timeLeft = newTimeLeft,
+            timePlayed = newTimePlayed,
+            hearts = currentHearts,
             isGameOver = false,
+            hasJustCollided = hasJustCollided,
+            hasCollectedHeart = hasCollectedHeart,
             obstacleCounter = nextCounter
         )
     }

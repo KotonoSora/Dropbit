@@ -42,9 +42,15 @@ class ProcessGameOverUseCase(
     suspend operator fun invoke(
         mode: GameMode,
         score: Int,
-        coinsEarned: Int
+        coinsEarned: Int,
+        timePlayed: Long = 0L
     ): Boolean {
-        val isHighScore = saveHighScoreUseCase(mode, score)
+        // For Endless mode, we might want to use timePlayed (in seconds) as an alternative or primary score
+        val finalScore = if (mode == GameMode.ENDLESS && score == 0) {
+            (timePlayed / 1000).toInt()
+        } else score
+
+        val isHighScore = saveHighScoreUseCase(mode, finalScore)
 
         if (coinsEarned > 0) {
             val currentCoins = getCoinsUseCase().first()
@@ -55,7 +61,7 @@ class ProcessGameOverUseCase(
             HistoryRecord(
                 date = System.currentTimeMillis(),
                 mode = mode,
-                score = score,
+                score = finalScore,
                 coinsEarned = coinsEarned
             )
         )

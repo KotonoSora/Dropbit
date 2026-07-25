@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -27,7 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jn.dropbit.domain.model.ALL_SKINS
@@ -141,7 +142,13 @@ fun SettingsToggle(label: String, enabled: Boolean, onToggle: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .clip(MaterialTheme.shapes.medium)
+            .toggleable(
+                value = enabled,
+                onValueChange = { onToggle() },
+                role = Role.Switch
+            )
+            .padding(vertical = 16.dp, horizontal = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -152,7 +159,7 @@ fun SettingsToggle(label: String, enabled: Boolean, onToggle: () -> Unit) {
         )
         Switch(
             checked = enabled,
-            onCheckedChange = { onToggle() },
+            onCheckedChange = null,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = NeonBlue,
                 checkedTrackColor = NeonBlue.copy(alpha = 0.5f)
