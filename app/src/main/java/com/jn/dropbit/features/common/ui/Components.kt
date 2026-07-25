@@ -15,10 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,12 +33,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jn.dropbit.domain.model.INITIAL_COINS
 import com.jn.dropbit.ui.theme.DarkBackground
 import com.jn.dropbit.ui.theme.DropbitTheme
 import com.jn.dropbit.ui.theme.NeonBlue
 import com.jn.dropbit.ui.theme.NeonGreen
-import com.jn.dropbit.ui.theme.NeonOrange
 import com.jn.dropbit.ui.theme.NeonPurple
+import com.jn.dropbit.ui.theme.NeonYellow
 import com.jn.dropbit.ui.theme.ensureContrast
 
 @Composable
@@ -62,18 +66,42 @@ fun DropbitScreen(
 @Composable
 fun HeaderBar(
     coins: Int,
+    title: String? = null,
+    onBackClick: (() -> Unit)? = null,
     showShopIcon: Boolean = false,
     onShopClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        if (onBackClick != null) {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = NeonBlue
+                )
+            }
+        } else {
+            Spacer(Modifier.width(8.dp))
+        }
+
+        if (title != null) {
+            NeonText(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                color = NeonBlue,
+                glowRadius = 4.dp
+            )
+        }
+
+        Spacer(Modifier.weight(1f))
+
         NeonCard(
-            color = NeonOrange,
+            color = NeonYellow,
             glowRadius = 2.dp,
             cornerRadius = 12.dp,
             modifier = Modifier.padding(vertical = 4.dp)
@@ -83,15 +111,15 @@ fun HeaderBar(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Star,
+                    imageVector = Icons.Default.AttachMoney,
                     contentDescription = "Coins",
-                    tint = NeonOrange,
+                    tint = NeonYellow,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = coins.toString(),
-                    color = NeonOrange.ensureContrast(),
+                    color = NeonYellow.ensureContrast(),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -99,6 +127,7 @@ fun HeaderBar(
         }
 
         if (showShopIcon) {
+            Spacer(Modifier.width(12.dp))
             NeonButton(
                 onClick = onShopClick,
                 color = NeonBlue,
@@ -112,9 +141,9 @@ fun HeaderBar(
                     tint = NeonBlue
                 )
             }
+            Spacer(Modifier.width(8.dp))
         } else {
-            // Spacer to maintain layout balance if needed, or just empty
-            Spacer(modifier = Modifier.size(40.dp))
+            Spacer(Modifier.width(16.dp))
         }
     }
 }
@@ -199,8 +228,10 @@ fun SmallMenuButton(
 @Composable
 fun HeaderBarPreview() {
     DropbitTheme {
-        HeaderBar(coins = 1234) {
-            // onShopClick
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            HeaderBar(coins = INITIAL_COINS, title = "HOME", showShopIcon = true)
+            HeaderBar(coins = INITIAL_COINS, title = "SHOP", onBackClick = {})
+            HeaderBar(coins = INITIAL_COINS, onBackClick = {})
         }
     }
 }

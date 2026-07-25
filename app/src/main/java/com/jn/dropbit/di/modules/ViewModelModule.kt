@@ -30,12 +30,6 @@ class ViewModelModule(
                     ShopViewModel(
                         domainComponent.getCoinsUseCase,
                         domainComponent.saveCoinsUseCase,
-                        domainComponent.getUnlockedSkinsUseCase,
-                        domainComponent.buySkinUseCase,
-                        domainComponent.getPlayerSkinUseCase,
-                        domainComponent.savePlayerSkinUseCase,
-                        domainComponent.getLastAdTimeUseCase,
-                        domainComponent.saveLastAdTimeUseCase,
                         dataComponent.billingManager,
                         dataComponent.soundManager
                     ) as T
@@ -44,7 +38,9 @@ class ViewModelModule(
                 modelClass.isAssignableFrom(GameViewModel::class.java) -> {
                     GameViewModel(
                         domainComponent.processGameOverUseCase,
+                        domainComponent.saveCoinsUseCase,
                         domainComponent.getPlayerSkinUseCase,
+                        domainComponent.getCoinsUseCase,
                         domainComponent.gameEngine,
                         dataComponent.soundManager
                     ) as T
@@ -54,6 +50,8 @@ class ViewModelModule(
                     SettingsViewModel(
                         domainComponent.getSettingsUseCase,
                         domainComponent.getCoinsUseCase,
+                        domainComponent.getPlayerSkinUseCase,
+                        domainComponent.savePlayerSkinUseCase,
                         domainComponent.saveSettingsUseCase,
                         dataComponent.soundManager
                     ) as T

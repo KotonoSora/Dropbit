@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jn.dropbit.domain.model.INITIAL_COINS
 import com.jn.dropbit.features.common.ui.DropbitScreen
 import com.jn.dropbit.features.common.ui.HeaderBar
 import com.jn.dropbit.features.common.ui.MenuButton
@@ -58,6 +59,7 @@ fun HomeScreenContent(
     DropbitScreen {
         HeaderBar(
             coins = state.coins,
+            title = "",
             showShopIcon = true,
             onShopClick = { onNavigate("shop") }
         )
@@ -140,7 +142,7 @@ fun HomeScreenContent(
 fun HomeScreenPreview() {
     DropbitTheme {
         HomeScreenContent(
-            state = HomeState(coins = 1500),
+            state = HomeState(coins = INITIAL_COINS),
             onNavigate = {}
         )
     }

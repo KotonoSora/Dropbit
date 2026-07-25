@@ -5,9 +5,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.jn.dropbit.domain.model.GameMode
 import com.jn.dropbit.features.game.ui.DailyChallengeScreen
 import com.jn.dropbit.features.game.ui.GameScreen
@@ -18,7 +20,6 @@ import com.jn.dropbit.features.history.ui.ScoresScreen
 import com.jn.dropbit.features.home.HomeViewModel
 import com.jn.dropbit.features.home.ui.HomeScreen
 import com.jn.dropbit.features.settings.ui.SettingsScreen
-import com.jn.dropbit.features.shop.ui.CharacterSelectionScreen
 import com.jn.dropbit.features.shop.ui.ShopCoinScreen
 
 @Composable
@@ -55,14 +56,8 @@ fun DropbitNavigation() {
                 coins = currentCoins,
                 onModeSelected = { mode ->
                     soundManager.play(R.raw.click)
-                    navController.navigate("game/${mode.name}")
+                    navController.navigate("game/${mode.name}?challenge=false")
                 },
-                onBack = popBackWithSound
-            )
-        }
-        composable("skins") {
-            CharacterSelectionScreen(
-                viewModel = viewModel(factory = factory),
                 onBack = popBackWithSound
             )
         }
@@ -75,14 +70,13 @@ fun DropbitNavigation() {
         composable("shop") {
             ShopCoinScreen(
                 viewModel = viewModel(factory = factory),
-                onNavigateToSkins = { navigateWithSound("skins") },
                 onBack = popBackWithSound
             )
         }
         composable("daily_challenge") {
             DailyChallengeScreen(
                 coins = currentCoins,
-                onPlayChallenge = { navigateWithSound("game/ENDLESS") },
+                onPlayChallenge = { navigateWithSound("game/ENDLESS?challenge=true") },
                 onBack = popBackWithSound
             )
         }
@@ -104,12 +98,23 @@ fun DropbitNavigation() {
                 onBack = popBackWithSound,
             )
         }
-        composable("game/{mode}") { backStackEntry ->
+        composable(
+            route = "game/{mode}?challenge={challenge}",
+            arguments = listOf(
+                navArgument("mode") { type = NavType.StringType },
+                navArgument("challenge") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
+        ) { backStackEntry ->
             val modeString = backStackEntry.arguments?.getString("mode") ?: "CLASSIC"
             val mode = GameMode.valueOf(modeString)
+            val isChallenge = backStackEntry.arguments?.getBoolean("challenge") ?: false
             GameScreen(
                 viewModel = viewModel(factory = factory),
-                mode = mode
+                mode = mode,
+                isChallenge = isChallenge
             ) {
                 soundManager.play(R.raw.click)
                 navController.popBackStack("menu", inclusive = false)

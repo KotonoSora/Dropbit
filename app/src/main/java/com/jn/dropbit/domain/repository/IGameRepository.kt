@@ -13,8 +13,6 @@ interface IGameRepository {
     suspend fun saveSelectedSkin(skin: String)
     fun getCoins(): Flow<Int>
     suspend fun saveCoins(coins: Int)
-    fun getLastAdTime(): Flow<Long>
-    suspend fun saveLastAdTime(time: Long)
     fun getHistory(): Flow<List<HistoryRecord>>
     suspend fun saveHistory(record: HistoryRecord)
     fun getSettings(): Flow<SettingsState>

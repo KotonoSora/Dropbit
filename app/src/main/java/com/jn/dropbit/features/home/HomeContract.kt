@@ -1,8 +1,11 @@
 package com.jn.dropbit.features.home
 
+import com.jn.dropbit.domain.model.DEFAULT_SKIN
+import com.jn.dropbit.domain.model.INITIAL_COINS
+
 data class HomeState(
-    val coins: Int = 0,
-    val selectedSkin: String = "Blue",
+    val coins: Int = INITIAL_COINS,
+    val selectedSkin: String = DEFAULT_SKIN,
 )
 
 sealed class HomeIntent {

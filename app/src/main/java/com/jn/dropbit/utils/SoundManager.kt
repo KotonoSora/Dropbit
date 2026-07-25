@@ -41,6 +41,7 @@ open class SoundManager(
             loadSound(R.raw.win)
             loadSound(R.raw.lose)
             loadSound(R.raw.milestone)
+            loadSound(R.raw.collide)
         }
 
         // Observe settings

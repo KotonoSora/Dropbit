@@ -78,6 +78,23 @@ def generate_milestone():
         samples.append(value)
     save_wav("milestone.wav", samples)
 
+def generate_collide():
+    # Thud/Impact sound
+    samples = []
+    num_samples = int(SAMPLE_RATE * 0.15)
+    for i in range(num_samples):
+        # Low frequency with some noise
+        freq = 150 * (1.0 - (i / num_samples) * 0.5)
+        v = math.sin(2.0 * math.pi * freq * i / SAMPLE_RATE)
+        # Add some "crunch" with random noise
+        import random
+        noise = random.uniform(-0.2, 0.2)
+
+        envelope = math.exp(-10 * i / num_samples)
+        value = int(0.6 * 32767.0 * (v + noise) * envelope)
+        samples.append(value)
+    save_wav("collide.wav", samples)
+
 if __name__ == "__main__":
     generate_click()
     generate_success()
@@ -85,3 +102,4 @@ if __name__ == "__main__":
     generate_win()
     generate_lose()
     generate_milestone()
+    generate_collide()
