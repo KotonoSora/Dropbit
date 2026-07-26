@@ -1,4 +1,7 @@
 <resources>
 
-    <style name="Theme.Dropbit" parent="Theme.MaterialComponents.Light" />
+    <style name="Theme.Dropbit" parent="Theme.MaterialComponents.Light">
+        <item name="android:fontFamily">@font/press_start_2p</item>
+        <item name="fontFamily">@font/press_start_2p</item>
+    </style>
 </resources>
