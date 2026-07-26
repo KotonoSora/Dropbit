@@ -29,82 +29,15 @@ import com.jn.dropbit.domain.model.HistoryRecord
 import com.jn.dropbit.domain.model.INITIAL_COINS
 import com.jn.dropbit.features.common.ui.DropbitScreen
 import com.jn.dropbit.features.common.ui.HeaderBar
-import com.jn.dropbit.features.common.ui.NeonCard
-import com.jn.dropbit.features.common.ui.NeonText
 import com.jn.dropbit.features.history.HistoryUIState
 import com.jn.dropbit.features.history.HistoryViewModel
 import com.jn.dropbit.ui.theme.DropbitTheme
-import com.jn.dropbit.ui.theme.NeonGreen
 import com.jn.dropbit.ui.theme.NeonOrange
-import com.jn.dropbit.ui.theme.NeonPink
 import com.jn.dropbit.ui.theme.NeonPurple
 import com.jn.dropbit.ui.theme.ensureContrast
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-@Composable
-fun ScoresScreen(viewModel: HistoryViewModel, onBack: () -> Unit) {
-    val state by viewModel.uiState.collectAsState()
-    ScoresScreenContent(state = state, onBack = onBack)
-}
-
-@Composable
-fun ScoresScreenContent(state: HistoryUIState, onBack: () -> Unit) {
-    DropbitScreen {
-        HeaderBar(
-            coins = state.coins,
-            title = "HIGH SCORES",
-            onBackClick = onBack
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Spacer(Modifier.height(48.dp))
-
-            ScoreRow("CLASSIC", state.highScores[GameMode.CLASSIC] ?: 0, NeonGreen)
-            ScoreRow("TIME ATTACK", state.highScores[GameMode.TIME_ATTACK] ?: 0, NeonPurple)
-            ScoreRow("ENDLESS", state.highScores[GameMode.ENDLESS] ?: 0, NeonPink)
-        }
-    }
-}
-
-@Composable
-fun ScoreRow(mode: String, score: Int, color: Color) {
-    NeonCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        color = color,
-        glowRadius = 4.dp,
-        containerColor = color.copy(alpha = 0.05f)
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(24.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                mode,
-                color = color.ensureContrast(),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold
-            )
-            NeonText(
-                score.toString(),
-                color = color,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black
-            )
-        }
-    }
-}
 
 @Composable
 fun HistoryScreen(viewModel: HistoryViewModel, onBack: () -> Unit) {
@@ -114,7 +47,7 @@ fun HistoryScreen(viewModel: HistoryViewModel, onBack: () -> Unit) {
 
 @Composable
 fun HistoryScreenContent(state: HistoryUIState, onBack: () -> Unit) {
-    val dateFormat = remember { SimpleDateFormat("MM/dd HH:mm", Locale.getDefault()) }
+    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd\nHH:mm", Locale.getDefault()) }
 
     DropbitScreen {
         HeaderBar(
@@ -125,9 +58,9 @@ fun HistoryScreenContent(state: HistoryUIState, onBack: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier
@@ -155,7 +88,7 @@ fun HistoryScreenContent(state: HistoryUIState, onBack: () -> Unit) {
                     textAlign = TextAlign.End
                 )
                 Text(
-                    "COINS",
+                    "REWARD",
                     color = Color.Gray,
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.weight(1f),
@@ -180,7 +113,7 @@ fun HistoryScreenContent(state: HistoryUIState, onBack: () -> Unit) {
                             modifier = Modifier.weight(1.5f),
                         )
                         Text(
-                            record.mode.name.take(5),
+                            record.mode.name.replace("_", " ").uppercase(),
                             color = NeonPurple.ensureContrast(),
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.weight(1f)
@@ -210,21 +143,6 @@ fun HistoryScreenContent(state: HistoryUIState, onBack: () -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-fun ScoresScreenPreview() {
-    DropbitTheme {
-        ScoresScreenContent(
-            state = HistoryUIState(
-                coins = INITIAL_COINS,
-                highScores = mapOf(GameMode.CLASSIC to 150, GameMode.ENDLESS to 300)
-            )
-        ) {
-            // onBack
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
 fun HistoryScreenPreview() {
     DropbitTheme {
         HistoryScreenContent(
@@ -236,6 +154,12 @@ fun HistoryScreenPreview() {
                         mode = GameMode.CLASSIC,
                         score = 100,
                         coinsEarned = 10
+                    ),
+                    HistoryRecord(
+                        date = System.currentTimeMillis(),
+                        mode = GameMode.TIME_ATTACK,
+                        score = 150,
+                        coinsEarned = 15
                     ),
                     HistoryRecord(
                         date = System.currentTimeMillis() - 86400000,

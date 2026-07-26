@@ -61,7 +61,6 @@ class ViewModelModule(
                     HistoryViewModel(
                         domainComponent.getHistoryUseCase,
                         domainComponent.getCoinsUseCase,
-                        domainComponent.getHighScoreUseCase
                     ) as T
                 }
 

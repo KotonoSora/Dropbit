@@ -84,9 +84,9 @@ class GameEngine {
         // Score logic - hearts don't count for score
         val passedObstaclesCount = currentObstacles.count { newObs ->
             val oldObs = currentState.obstacles.find { it.id == newObs.id }
-            oldObs != null && 
-            oldObs.type == FallingObjectType.OBSTACLE &&
-            oldObs.position.y < 2000f && newObs.position.y >= 2000f
+            oldObs != null &&
+                    oldObs.type == FallingObjectType.OBSTACLE &&
+                    oldObs.position.y < 2000f && newObs.position.y >= 2000f
         }
         val finalScore = currentState.score + passedObstaclesCount
 

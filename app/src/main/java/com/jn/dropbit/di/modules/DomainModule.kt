@@ -3,7 +3,6 @@ package com.jn.dropbit.di.modules
 import com.jn.dropbit.di.DomainComponent
 import com.jn.dropbit.domain.engine.GameEngine
 import com.jn.dropbit.domain.usecase.GetCoinsUseCase
-import com.jn.dropbit.domain.usecase.GetHighScoreUseCase
 import com.jn.dropbit.domain.usecase.GetHistoryUseCase
 import com.jn.dropbit.domain.usecase.GetPlayerSkinUseCase
 import com.jn.dropbit.domain.usecase.GetSettingsUseCase
@@ -15,7 +14,6 @@ import com.jn.dropbit.domain.usecase.SavePlayerSkinUseCase
 import com.jn.dropbit.domain.usecase.SaveSettingsUseCase
 
 class DomainModule(private val dataModule: DataModule) : DomainComponent {
-    override val getHighScoreUseCase by lazy { GetHighScoreUseCase(dataModule.gameRepository) }
     override val saveHighScoreUseCase by lazy { SaveHighScoreUseCase(dataModule.gameRepository) }
     override val getPlayerSkinUseCase by lazy { GetPlayerSkinUseCase(dataModule.gameRepository) }
     override val savePlayerSkinUseCase by lazy { SavePlayerSkinUseCase(dataModule.gameRepository) }

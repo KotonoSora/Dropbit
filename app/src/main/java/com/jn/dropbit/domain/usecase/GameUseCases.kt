@@ -6,12 +6,6 @@ import com.jn.dropbit.domain.model.ScoreRecord
 import com.jn.dropbit.domain.repository.IGameRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-
-class GetHighScoreUseCase(private val repository: IGameRepository) {
-    operator fun invoke(mode: GameMode): Flow<Int> =
-        repository.getHighScore(mode).map { it.score }
-}
 
 class SaveHighScoreUseCase(private val repository: IGameRepository) {
     suspend operator fun invoke(mode: GameMode, score: Int): Boolean {
