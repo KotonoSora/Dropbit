@@ -228,7 +228,9 @@ fun GameScreenContent(
                                     with(heartPainter) {
                                         draw(
                                             size = androidx.compose.ui.geometry.Size(60f, 60f),
-                                            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.Red)
+                                            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                                                Color.Red
+                                            )
                                         )
                                     }
                                 }

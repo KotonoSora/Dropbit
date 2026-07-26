@@ -32,8 +32,8 @@ data class GameState(
 )
 
 data class Obstacle(
-    val id: Int, 
-    val position: Offset, 
+    val id: Int,
+    val position: Offset,
     val speed: Float,
     val type: FallingObjectType = FallingObjectType.OBSTACLE
 )

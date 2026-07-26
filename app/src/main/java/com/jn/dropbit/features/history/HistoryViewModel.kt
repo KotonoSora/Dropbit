@@ -4,9 +4,9 @@ import androidx.lifecycle.viewModelScope
 import com.jn.dropbit.domain.usecase.GetCoinsUseCase
 import com.jn.dropbit.domain.usecase.GetHistoryUseCase
 import com.jn.dropbit.presentation.base.BaseViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.combine
 
 class HistoryViewModel(
     getHistoryUseCase: GetHistoryUseCase,

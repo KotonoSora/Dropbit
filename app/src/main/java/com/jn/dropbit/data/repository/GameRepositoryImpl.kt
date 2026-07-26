@@ -17,20 +17,15 @@ import com.jn.dropbit.domain.model.INITIAL_COINS
 import com.jn.dropbit.domain.model.ScoreRecord
 import com.jn.dropbit.domain.model.SettingsState
 import com.jn.dropbit.domain.repository.IGameRepository
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.Json
 
 class GameRepositoryImpl(
     private val dataStore: DataStore<Preferences>,
 ) : IGameRepository {
 
-    private val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-    private val historyAdapter = moshi.adapter<List<HistoryRecordDto>>(
-        Types.newParameterizedType(List::class.java, HistoryRecordDto::class.java)
-    )
+    private val json = Json { ignoreUnknownKeys = true }
 
     override fun getHighScore(mode: GameMode): Flow<ScoreRecord> {
         val prefKey = intPreferencesKey("high_score_${mode.name.lowercase()}")
@@ -60,9 +55,15 @@ class GameRepositoryImpl(
 
     override fun getHistory(): Flow<List<HistoryRecord>> {
         return dataStore.data.map { preferences ->
-            val json = preferences[HISTORY] ?: ""
-            if (json.isEmpty()) emptyList()
-            else historyAdapter.fromJson(json)?.map { it.toDomain() } ?: emptyList()
+            val jsonString = preferences[HISTORY] ?: ""
+            if (jsonString.isEmpty()) emptyList()
+            else {
+                try {
+                    json.decodeFromString<List<HistoryRecordDto>>(jsonString).map { it.toDomain() }
+                } catch (e: Exception) {
+                    emptyList()
+                }
+            }
         }
     }
 
@@ -70,10 +71,16 @@ class GameRepositoryImpl(
         dataStore.edit { preferences ->
             val currentJson = preferences[HISTORY] ?: ""
             val currentList = if (currentJson.isEmpty()) emptyList()
-            else historyAdapter.fromJson(currentJson) ?: emptyList()
+            else {
+                try {
+                    json.decodeFromString<List<HistoryRecordDto>>(currentJson)
+                } catch (e: Exception) {
+                    emptyList()
+                }
+            }
 
             val newList = (listOf(record.toDto()) + currentList).take(50) // Keep last 50
-            preferences[HISTORY] = historyAdapter.toJson(newList)
+            preferences[HISTORY] = json.encodeToString(newList)
         }
     }
 

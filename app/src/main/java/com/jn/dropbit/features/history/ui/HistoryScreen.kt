@@ -113,7 +113,7 @@ fun HistoryScreenContent(state: HistoryUIState, onBack: () -> Unit) {
                             modifier = Modifier.weight(1.5f),
                         )
                         Text(
-                            record.mode.name,
+                            record.mode.name.replace("_", " ").uppercase(),
                             color = NeonPurple.ensureContrast(),
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.weight(1f)
