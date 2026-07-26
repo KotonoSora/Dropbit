@@ -16,7 +16,6 @@ import com.jn.dropbit.features.game.ui.GameScreen
 import com.jn.dropbit.features.game.ui.ModeSelectionScreen
 import com.jn.dropbit.features.help.ui.HelpScreen
 import com.jn.dropbit.features.history.ui.HistoryScreen
-import com.jn.dropbit.features.history.ui.ScoresScreen
 import com.jn.dropbit.features.home.HomeViewModel
 import com.jn.dropbit.features.home.ui.HomeScreen
 import com.jn.dropbit.features.settings.ui.SettingsScreen
@@ -58,12 +57,6 @@ fun DropbitNavigation() {
                     soundManager.play(R.raw.click)
                     navController.navigate("game/${mode.name}?challenge=false")
                 },
-                onBack = popBackWithSound
-            )
-        }
-        composable("scores") {
-            ScoresScreen(
-                viewModel = viewModel(factory = factory),
                 onBack = popBackWithSound
             )
         }

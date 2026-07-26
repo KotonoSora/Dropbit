@@ -4,7 +4,6 @@ import com.jn.dropbit.billing.BillingManager
 import com.jn.dropbit.domain.engine.GameEngine
 import com.jn.dropbit.domain.repository.IGameRepository
 import com.jn.dropbit.domain.usecase.GetCoinsUseCase
-import com.jn.dropbit.domain.usecase.GetHighScoreUseCase
 import com.jn.dropbit.domain.usecase.GetHistoryUseCase
 import com.jn.dropbit.domain.usecase.GetPlayerSkinUseCase
 import com.jn.dropbit.domain.usecase.GetSettingsUseCase
@@ -23,7 +22,6 @@ interface DataComponent {
 }
 
 interface DomainComponent {
-    val getHighScoreUseCase: GetHighScoreUseCase
     val saveHighScoreUseCase: SaveHighScoreUseCase
     val getPlayerSkinUseCase: GetPlayerSkinUseCase
     val savePlayerSkinUseCase: SavePlayerSkinUseCase
