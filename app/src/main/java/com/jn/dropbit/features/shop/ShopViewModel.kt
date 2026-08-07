@@ -47,7 +47,7 @@ class ShopViewModel(
                 intent.productId,
             )
 
-            ShopIntent.RetryBilling -> billingManager.retryConnection()
+            ShopIntent.RetryBilling -> billingManager.refreshProducts()
         }
     }
 
