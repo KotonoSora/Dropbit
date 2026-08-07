@@ -13,9 +13,9 @@ configure<ApplicationExtension> {
 
     defaultConfig {
         applicationId = "com.jn.dropbit"
-        minSdk = 30
-        versionCode = 1
-        versionName = "1.0.0"
+        minSdk = 24
+        versionCode = 2
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
