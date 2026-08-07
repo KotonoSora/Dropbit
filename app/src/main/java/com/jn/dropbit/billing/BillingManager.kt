@@ -31,6 +31,7 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
     private var billingClient: BillingClient = BillingClient.newBuilder(context)
         .setListener(this)
         .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
+        .enableAutoServiceReconnection()
         .build()
 
     private val _products = MutableStateFlow<List<ShopProduct>>(emptyList())
@@ -62,10 +63,8 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
         startConnection()
     }
 
-    fun retryConnection() {
-        if (_billingState.value != BillingState.CONNECTING) {
-            startConnection()
-        }
+    fun refreshProducts() {
+        queryProducts()
     }
 
     private fun startConnection() {
@@ -81,7 +80,9 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
                 }
 
                 override fun onBillingServiceDisconnected() {
-                    handleConnectionFailure()
+                    // With enableAutoServiceReconnection(), we don't need to manually restart connection here.
+                    // But we might want to update the state.
+                    _billingState.value = BillingState.CONNECTING
                 }
             },
         )
@@ -138,7 +139,7 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
             title = title.substringBefore(" ("),
             description = description,
             price = oneTimePurchaseOfferDetails?.formattedPrice ?: "N/A",
-            amount = getAmountFromId(productId)
+            amount = getAmountFromId(productId),
         )
     }
 
